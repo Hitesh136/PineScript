@@ -1,0 +1,72 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © TraderCreatorPro
+
+//@version=5
+indicator("Position Size Calculator", "PS KLC", true)
+riskCap = input.int(100, title = "Risk Capacity", minval = 10)
+lastEntry = false
+output = ""
+output2 = ""
+
+if barstate.islast 
+    lastEntry := true
+    entry = math.round_to_mintick(high + (high * 0.005))
+    sl = math.round_to_mintick(low - (low * 0.005))
+    
+    singleprofit = entry + ((entry - sl) * 1)
+    doueblprofit = entry + ((entry - sl) * 2)
+    tripleprofit = entry + ((entry - sl) * 3)
+
+    diff = (entry - sl)
+    qty = math.round((riskCap / diff), 0)
+    amount = entry * qty 
+
+
+    tripleProfitAmount = (tripleprofit * qty) - amount
+    doubleProfitAmount = (doueblprofit * qty) - amount
+    singleProfitAmount = (singleprofit * qty) - amount
+    distanceStarting = 10
+    distanceGap = 10
+    loss = amount - (sl * qty)
+    // output := "Profit 3x = " + str.tostring(tripleprofit) + " / " + str.tostring(tripleProfitAmount) +  "\nProfit 2x = " + str.tostring(doueblprofit) + " / " + str.tostring(doubleProfitAmount) + "\n\nEntry = " + str.tostring(entry) + " / " +  str.tostring(amount)  +"\nStopLoss = " + str.tostring(sl) + " / " + str.tostring(loss) + "\n\nQTY = " + str.tostring(qty) 
+
+    // 3x Profit
+    tripleProfiltTitle =  "3x - " + str.tostring(tripleProfitAmount) + " / " + str.tostring(tripleprofit)
+    tripleProfiltDistance = bar_index + distanceStarting + distanceGap + distanceGap + distanceGap
+    line.new(bar_index[1000], tripleprofit, bar_index, tripleprofit, style = line.style_dotted, width = 1, color = color.lime,  extend = extend.right)
+    label.new(tripleProfiltDistance, tripleprofit, tripleProfiltTitle, color = color.green, style = label.style_label_left, textcolor = color.white, size = size.small)
+
+    // 2x Profit
+    doubleProfiltTitle =  "2x - " + str.tostring(doubleProfitAmount) + " / " + str.tostring(doueblprofit)
+    doubleProfiltDistance = bar_index + distanceStarting + distanceGap + distanceGap
+    line.new(bar_index[1000], doueblprofit, bar_index, doueblprofit, style = line.style_dotted, width = 1, color = color.lime,  extend = extend.right)
+    label.new(doubleProfiltDistance, doueblprofit, doubleProfiltTitle, color = color.green, style = label.style_label_left, textcolor = color.white, size = size.small)
+
+    // 1x Profit
+    singleProfiltTitle = "1x - " + str.tostring(singleProfitAmount) + " / " + str.tostring(singleprofit)
+    singleProfiltDistance = bar_index + distanceStarting + distanceGap 
+    line.new(bar_index[1000], singleprofit, bar_index, singleprofit, style = line.style_dotted, width = 1, color = color.lime,  extend = extend.right)
+    label.new(singleProfiltDistance, singleprofit, singleProfiltTitle, color = color.green, style = label.style_label_left, textcolor = color.white, size = size.small)
+
+    //Entry
+    entryTtile = "Entry - " + str.tostring(amount) + " / " + str.tostring(entry)
+    line.new(bar_index[1], entry, bar_index, entry, style = line.style_dotted, width = 1, color = color.blue,  extend = extend.right)
+    label.new(bar_index + distanceStarting, entry, entryTtile, color = color.blue, style = label.style_label_left, textcolor = color.white, size = size.small)
+    
+    //Stoploss
+    stoplossTitle = "SL - " + str.tostring(loss) + " / " + str.tostring(sl)
+    line.new(bar_index[1000], sl, bar_index, sl, style = line.style_dotted, width = 1, color = color.red,  extend = extend.right)
+    label.new(bar_index + distanceStarting, sl, stoplossTitle, color = color.red, style = label.style_label_left, textcolor = color.white, size = size.small)
+    // plotshape(tripleprofit, style=shape.labelup, text="close", show_last=1)
+
+
+    // line.new(bar_index[10], doueblprofit, bar_index, doueblprofit, width = 1, color = color.blue,  extend = extend.right)
+
+    // line.new(bar_index[10], entry, bar_index, entry, width = 1, color = color.blue,  extend = extend.right)   
+    // line.new(bar_index[10], sl, bar_index, sl, width = 1, color = color.blue,  extend = extend.right)   
+    // line.new(bar_index[10], doueblprofit, bar_index, doueblprofit, width = 1, color = color.blue,  extend = extend.right)
+    // line.new(bar_index[10], tripleprofit, bar_index, tripleprofit, style = line.style_dotted, width = 1, color = color.blue,  extend = extend.right)
+    // label.new(bar_index, high, output, yloc = yloc.abovebar, color = color.gray, style = label.style_label_down, textcolor = color.white)
+    
+
+// plotshape(lastEntry, title = "Buy", style = shape.labelup, text = output, location = location.bottom, color = color.lime, textcolor = color.white, size = size.tiny)
