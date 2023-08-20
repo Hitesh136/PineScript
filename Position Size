@@ -8,9 +8,16 @@ lastEntry = false
 output = ""
 output2 = ""
 
+greenColor = color.rgb(27, 202, 117, 28)
+whiteColor = color.white
+grayColor = color.gray
+blueColor = color.blue
+redColor = color.rgb(255, 82, 82, 39)
+greenLineColorPrimary = color.green
+greenLineColorSecondary = color.rgb(87, 173, 90, 50)
 
-var shouldUpdate = input.bool(defval = true, title = "Should Continue")
-
+var shouldConsiderDate = input.bool(defval = false, title = "Should Consider Date")
+ 
 var yearInp = input.int(0, "Year")
 var monthInp = input.int(0, "Month")
 var dayInp = input.int(0, "day")
@@ -23,29 +30,55 @@ buildLevels(shouldUpdatDrawings) =>
     var line tripleProfitLine = na
     var label tripleProfitLabel = na
     
+    var line twoPoint5x_ProfitLine = na
+    var label twoPoint5x_ProfitLabel = na
+
     var line doubleProfitLine = na
     var label doubleProfitLabel = na
 
+    var line onePoint5x_ProfitLine = na
+    var label onePoint5x_ProfitLabel = na
+
     var line singleProfitLine = na
     var label singleProfitLabel = na
+
+    var line point5x_ProfitLine = na
+    var label point5x_ProfitLabel = na
 
     var line entryLine = na
     var label entryLabel = na
 
     var line slLine = na
     var label slLabel = na
+
+    var line verticalLine = na
+
+    var panel = table.new(position.top_right, 3, 11)
+
     // 3x Profit
     tripleProfitLine.delete()
-    tripleProfitLabel.delete()
-    // globalLabels.set()
+    tripleProfitLabel.delete() 
+
+    // 2.5x Profit
+    twoPoint5x_ProfitLine.delete()
+    twoPoint5x_ProfitLabel.delete()
+
     // 2x Profit
     doubleProfitLine.delete()
     doubleProfitLabel.delete()
+
+    //1.5x Profit
+    onePoint5x_ProfitLine.delete()
+    onePoint5x_ProfitLabel.delete() 
 
     // 1x Profit
     singleProfitLine.delete()
     singleProfitLabel.delete()
     
+    //0.5x Profit
+    point5x_ProfitLine.delete()
+    point5x_ProfitLabel.delete() 
+
     //Entry
     entryLine.delete()
     entryLabel.delete() 
@@ -54,13 +87,18 @@ buildLevels(shouldUpdatDrawings) =>
     slLine.delete()
     slLabel.delete()
 
+    verticalLine.delete()
+
     if shouldUpdatDrawings  
     
         entry = math.round_to_mintick(high + (high * 0.005))
         sl = math.round_to_mintick(low - (low * 0.005))
     
+        point5x_profit = entry + ((entry - sl) * 0.5)
         singleprofit = entry + ((entry - sl) * 1)
+        onePoint5x_profit = entry + ((entry - sl) * 1.5)
         doueblprofit = entry + ((entry - sl) * 2)
+        twoPoint5x_profit = entry + ((entry - sl) * 2.5)
         tripleprofit = entry + ((entry - sl) * 3)
 
         diff = (entry - sl)
@@ -70,62 +108,116 @@ buildLevels(shouldUpdatDrawings) =>
         tripleProfitLine.delete()
 
         tripleProfitAmount = (tripleprofit * qty) - amount
+        twoPoint5x_ProfitAmount = (twoPoint5x_profit * qty) - amount 
         doubleProfitAmount = (doueblprofit * qty) - amount
+        onePoint5x_ProfitAmount = (onePoint5x_profit * qty) - amount
         singleProfitAmount = (singleprofit * qty) - amount
-        distanceStarting = 10
-        distanceGap = 10
+        point5x_PorfitAmount = (point5x_profit * qty) - amount
+
+        distanceStarting = 0
+        distanceGap = 0
         loss = amount - (sl * qty)
         // output := "Profit 3x = " + str.tostring(tripleprofit) + " / " + str.tostring(tripleProfitAmount) +  "\nProfit 2x = " + str.tostring(doueblprofit) + " / " + str.tostring(doubleProfitAmount) + "\n\nEntry = " + str.tostring(entry) + " / " +  str.tostring(amount)  +"\nStopLoss = " + str.tostring(sl) + " / " + str.tostring(loss) + "\n\nQTY = " + str.tostring(qty) 
 
+        
+        table.cell(panel, 0, 0, "Title", bgcolor = color.gray, text_color = whiteColor)
+        table.cell(panel, 1, 0, "Value", bgcolor = color.gray, text_color = whiteColor)
+        table.cell(panel, 2, 0, "Margin", bgcolor = color.gray, text_color = whiteColor)
+
         // 3x Profit 
         // globalLines.set(global, tripleProfitLine, tripleProfitLine)
-        tripleProfiltTitle =  "3x - " + str.tostring(tripleProfitAmount) + " / " + str.tostring(tripleprofit)
-        tripleProfiltDistance = bar_index + distanceStarting + distanceGap + distanceGap + distanceGap
-        tripleProfitLine := line.new(bar_index[4999], tripleprofit, bar_index, tripleprofit, style = line.style_dotted, width = 1, color = color.lime,  extend = extend.right)
-        tripleProfitLabel := label.new(tripleProfiltDistance, tripleprofit, tripleProfiltTitle, color = color.rgb(76, 175, 79, 67), style = label.style_label_left, textcolor = color.white, size = size.small)
+        tripleProfiltTitle =  "3"
+        tripleProfiltDistance = bar_index + distanceStarting + distanceGap 
+        tripleProfitLine := line.new(bar_index[4999], tripleprofit, bar_index, tripleprofit, style = line.style_dotted, width = 1, color = greenLineColorPrimary,  extend = extend.right)
+        tripleProfitLabel := label.new(tripleProfiltDistance, tripleprofit, tripleProfiltTitle, color = greenLineColorPrimary, style = label.style_label_center, textcolor = color.white, size = size.tiny)
+
+        table.cell(panel, 0, 1, "3x", bgcolor = grayColor, text_color = whiteColor)
+        table.cell(panel, 1, 1, str.tostring(tripleprofit), bgcolor = greenColor, text_color = whiteColor)
+        table.cell(panel, 2, 1, str.tostring(tripleProfitAmount), bgcolor = greenColor, text_color = whiteColor)
+
+        //2.5x Profit
+        twoPoint5x_ProfiltTitle =  "2.5" 
+        twoPoint5x_ProfiltDistance = bar_index + distanceStarting + distanceGap 
+        twoPoint5x_ProfitLine := line.new(bar_index[4999], twoPoint5x_profit, bar_index, twoPoint5x_profit, style = line.style_dotted, width = 1, color = greenLineColorSecondary,  extend = extend.right)
+        twoPoint5x_ProfitLabel := label.new(twoPoint5x_ProfiltDistance, twoPoint5x_profit, twoPoint5x_ProfiltTitle, color = greenLineColorSecondary, style = label.style_label_center, textcolor = color.white, size = size.tiny)
     
+        table.cell(panel, 0, 2, "2.5x", bgcolor = grayColor, text_color = whiteColor)
+        table.cell(panel, 1, 2, str.tostring(twoPoint5x_profit), bgcolor = greenColor, text_color = whiteColor)
+        table.cell(panel, 2, 2, str.tostring(twoPoint5x_ProfitAmount), bgcolor = greenColor, text_color = whiteColor)
+
         // 2x Profit 
+        doubleProfiltTitle =  "2" 
+        doubleProfiltDistance = bar_index + distanceStarting + distanceGap
+        doubleProfitLine := line.new(bar_index[4999], doueblprofit, bar_index, doueblprofit, style = line.style_dotted, width = 1, color = greenLineColorPrimary,  extend = extend.right)
+        doubleProfitLabel := label.new(doubleProfiltDistance, doueblprofit, doubleProfiltTitle, color = greenLineColorPrimary, style = label.style_label_center, textcolor = color.white, size = size.tiny)
 
-        doubleProfiltTitle =  "2x - " + str.tostring(doubleProfitAmount) + " / " + str.tostring(doueblprofit)
-        doubleProfiltDistance = bar_index + distanceStarting + distanceGap + distanceGap
-        doubleProfitLine := line.new(bar_index[4999], doueblprofit, bar_index, doueblprofit, style = line.style_dotted, width = 1, color = color.lime,  extend = extend.right)
-        doubleProfitLabel := label.new(doubleProfiltDistance, doueblprofit, doubleProfiltTitle, color = color.rgb(76, 175, 79, 62), style = label.style_label_left, textcolor = color.white, size = size.small)
+        table.cell(panel, 0, 3, "2x", bgcolor = grayColor, text_color = whiteColor)
+        table.cell(panel, 1, 3, str.tostring(doueblprofit), bgcolor = greenColor, text_color = whiteColor)
+        table.cell(panel, 2, 3, str.tostring(doubleProfitAmount), bgcolor = greenColor, text_color = whiteColor)
 
-        // 1x Profit
+        // 1.5x Profit 
+        onePoint5x_ProfiltTitle = "1.5"
+        onePoint5x_ProfiltDistance = bar_index + distanceStarting + distanceGap 
+        onePoint5x_ProfitLine := line.new(bar_index[4999], onePoint5x_profit, bar_index, onePoint5x_profit, style = line.style_dotted, width = 1, color = greenLineColorSecondary,  extend = extend.right)
+        onePoint5x_ProfitLabel := label.new(onePoint5x_ProfiltDistance, onePoint5x_profit, onePoint5x_ProfiltTitle, color = greenLineColorSecondary, style = label.style_label_center, textcolor = color.white, size = size.tiny)
 
-        singleProfiltTitle = "1x - " + str.tostring(singleProfitAmount) + " / " + str.tostring(singleprofit)
+        table.cell(panel, 0, 4, "1.5x", bgcolor = grayColor, text_color = whiteColor)
+        table.cell(panel, 1, 4, str.tostring(onePoint5x_profit), bgcolor = greenColor, text_color = whiteColor)
+        table.cell(panel, 2, 4, str.tostring(onePoint5x_ProfitAmount), bgcolor = greenColor, text_color = whiteColor)
+
+        // 1x Profit 
+        singleProfiltTitle = "1"
         singleProfiltDistance = bar_index + distanceStarting + distanceGap 
-        singleProfitLine := line.new(bar_index[4999], singleprofit, bar_index, singleprofit, style = line.style_dotted, width = 1, color = color.lime,  extend = extend.right)
-        singleProfitLabel := label.new(singleProfiltDistance, singleprofit, singleProfiltTitle, color = color.rgb(76, 175, 79, 69), style = label.style_label_left, textcolor = color.white, size = size.small)
+        singleProfitLine := line.new(bar_index[4999], singleprofit, bar_index, singleprofit, style = line.style_dotted, width = 1, color = greenLineColorPrimary,  extend = extend.right)
+        singleProfitLabel := label.new(singleProfiltDistance, singleprofit, singleProfiltTitle, color = greenLineColorPrimary, style = label.style_label_center, textcolor = color.white, size = size.tiny)
 
-        //Entry
+        table.cell(panel, 0, 5, "1x", bgcolor = grayColor, text_color = whiteColor)
+        table.cell(panel, 1, 5, str.tostring(singleprofit), bgcolor = greenColor, text_color = whiteColor)
+        table.cell(panel, 2, 5, str.tostring(singleProfitAmount), bgcolor = greenColor, text_color = whiteColor)
 
-        entryTtile = "Entry - " + str.tostring(amount) + " / " + str.tostring(entry) + " / QTY = " + str.tostring(qty)
+        // 0.5x Profit 
+        point5x_ProfiltTitle = "0.5" 
+        point5x_ProfiltDistance = bar_index + distanceStarting + distanceGap 
+        point5x_ProfitLine := line.new(bar_index[4999], point5x_profit, bar_index, point5x_profit, style = line.style_dotted, width = 1, color = greenLineColorSecondary,  extend = extend.right)
+        point5x_ProfitLabel := label.new(point5x_ProfiltDistance, point5x_profit, point5x_ProfiltTitle, color = greenLineColorSecondary, style = label.style_label_center, textcolor = color.white, size = size.tiny)
+
+        table.cell(panel, 0, 6, "0.5x", bgcolor = grayColor, text_color = whiteColor)
+        table.cell(panel, 1, 6, str.tostring(point5x_profit), bgcolor = greenColor, text_color = whiteColor)
+        table.cell(panel, 2, 6, str.tostring(point5x_PorfitAmount), bgcolor = greenColor, text_color = whiteColor)
+
+        //Entry 
+        entryTtile = "E" 
         entryLine := line.new(bar_index[1], entry, bar_index, entry, style = line.style_dotted, width = 1, color = color.blue,  extend = extend.right)
-        entryLabel := label.new(bar_index + distanceStarting, entry, entryTtile, color = color.rgb(33, 149, 243, 75), style = label.style_label_left, textcolor = color.white, size = size.small)
+        // entryLabel := label.new(bar_index + distanceStarting, entry, entryTtile, color = blueColor, style = label.style_label_center, textcolor = color.white, size = size.small)
     
-        //Stoploss
+        table.cell(panel, 0, 7, "Entry", bgcolor = grayColor, text_color = whiteColor)
+        table.cell(panel, 1, 7, str.tostring(entry) , bgcolor = blueColor, text_color = whiteColor)
+        table.cell(panel, 2, 7, str.tostring(amount) , bgcolor = blueColor, text_color = whiteColor)
 
-        stoplossTitle = "SL - " + str.tostring(loss) + " / " + str.tostring(sl)
+        table.cell(panel, 0, 8, "QTY", bgcolor = grayColor, text_color = whiteColor)
+        table.cell(panel, 1, 8, str.tostring(qty), bgcolor = blueColor, text_color = whiteColor)
+        table.cell(panel, 2, 8, "", bgcolor = blueColor, text_color = whiteColor)
+
+        //Stoploss 
+        stoplossTitle = "SL"
         slLine := line.new(bar_index[2], sl, bar_index, sl, style = line.style_dotted, width = 1, color = color.red,  extend = extend.right)
-        slLabel := label.new(bar_index + distanceStarting, sl, stoplossTitle, color = color.rgb(255, 82, 82, 81), style = label.style_label_left, textcolor = color.white, size = size.small)
+        // slLabel := label.new(bar_index + distanceStarting, sl, stoplossTitle, color = redColor, style = label.style_label_center, textcolor = color.white, size = size.small)
 
-// deleteDrawings()
-var isTimeValueSet = false
-// buildLevels(false)
-if year == yearInp and month == monthInp and dayofmonth == dayInp  
-    isTimeValueSet = true
-    buildLevels(false)
+        // verticalLine = line.new(bar_index, close, bar_index, close * 10.01, extend = extend.both, color = color.purple, style = line.style_dotted, width = 1)
+
+        table.cell(panel, 0, 9, "Exit", bgcolor = grayColor, text_color = whiteColor)
+        table.cell(panel, 1, 9, str.tostring(sl), bgcolor = redColor, text_color = whiteColor)
+        table.cell(panel, 2, 9, str.tostring(loss), bgcolor = redColor, text_color = whiteColor)
+
+        
+
+
+var isTimeValueSet = false 
+if year == yearInp and month == monthInp and dayofmonth == dayInp and shouldConsiderDate
+    isTimeValueSet := true 
     buildLevels(true)
-// else if barstate.islast and isTimeValueSet == false 
-// //     // isTimeValueSet = false
-//     buildLevels(false)
-//     buildLevels(true)
-// else 
-//     // plot("year")
-//     label.new(bar_index, high, str.tostring(3))
-    // buildLevels(false)
-    
-    
-
+ 
+if barstate.islast and isTimeValueSet == false  
+    buildLevels(true) 
+     
 
